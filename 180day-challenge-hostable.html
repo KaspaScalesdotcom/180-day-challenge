@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>180 Day Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #07070F; }
+:root {
+  --bg:#07070F; --surface:#0F0F1C; --s2:#161628; --border:#1E1E35;
+  --lime:#C8FF00; --lime2:#8AB500; --red:#FF4040;
+  --text:#E2E2F0; --muted:#5A5A7A;
+  --fd:'Bebas Neue',sans-serif; --fm:'DM Mono',monospace; --fb:'Syne',sans-serif;
+}
+.wrap { min-height:100vh; background:var(--bg); color:var(--text); font-family:var(--fb); padding:20px; max-width:1100px; margin:0 auto; }
+.topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:8px; }
+.logo { font-family:var(--fd); font-size:22px; letter-spacing:3px; color:var(--lime); }
+.logo-sub { font-family:var(--fm); font-size:10px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; margin-left:10px; }
+.saved-pill { font-family:var(--fm); font-size:9px; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; border-radius:6px; background:rgba(200,255,0,0.08); color:var(--lime2); border:1px solid rgba(200,255,0,0.2); }
+.setup { background:var(--s2); border:1px solid var(--lime); border-radius:12px; padding:14px 18px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.setup label { font-family:var(--fm); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.setup input[type=date] { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:var(--fm); font-size:12px; padding:6px 10px; outline:none; }
+.setup input[type=date]:focus { border-color:var(--lime); }
+.btn-start { background:var(--lime); color:#07070F; border:none; border-radius:6px; font-family:var(--fd); font-size:14px; letter-spacing:1px; padding:7px 18px; cursor:pointer; }
+.btn-reset { background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:6px; font-family:var(--fm); font-size:10px; padding:5px 12px; cursor:pointer; }
+.btn-reset:hover { border-color:var(--red); color:var(--red); }
+.hero { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+.hero-main { background:var(--lime); border-radius:16px; padding:24px 28px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; }
+.hero-main::before { content:''; position:absolute; right:-20px; top:-20px; width:130px; height:130px; border-radius:50%; background:rgba(0,0,0,0.08); }
+.day-num { font-family:var(--fd); font-size:78px; color:#07070F; line-height:1; }
+.day-of { font-family:var(--fm); font-size:11px; color:#07070F; opacity:.65; letter-spacing:3px; text-transform:uppercase; margin-top:4px; }
+.day-rem { font-family:var(--fm); font-size:10px; color:#07070F; opacity:.5; margin-top:6px; }
+.hstat { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; }
+.hstat-val { font-family:var(--fd); font-size:50px; color:var(--lime); line-height:1; }
+.hstat-lbl { font-family:var(--fm); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hstat-sub { font-family:var(--fm); font-size:10px; color:var(--muted); margin-top:4px; }
+.phase-bar { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 18px; display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+.phase-tag { font-family:var(--fm); font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; white-space:nowrap; }
+.track { flex:1; min-width:60px; height:5px; background:var(--border); border-radius:99px; overflow:hidden; }
+.fill { height:100%; background:var(--lime); border-radius:99px; transition:width .5s; }
+.phase-pct { font-family:var(--fm); font-size:11px; color:var(--lime); white-space:nowrap; }
+.dots { display:flex; gap:10px; }
+.dot { display:flex; align-items:center; gap:5px; font-family:var(--fm); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.dot-c { width:7px; height:7px; border-radius:50%; background:var(--border); }
+.dot.active .dot-c { background:var(--lime); }
+.dot.done .dot-c { background:var(--lime2); }
+.main { display:grid; grid-template-columns:1fr 290px; gap:14px; margin-bottom:14px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 20px; }
+.card-title { font-family:var(--fm); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; display:flex; justify-content:space-between; }
+.card-title span { color:var(--lime); }
+.right { display:flex; flex-direction:column; gap:12px; }
+.habits { display:flex; flex-direction:column; gap:8px; }
+.habit { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; background:var(--s2); border:1px solid var(--border); cursor:pointer; transition:all .15s; user-select:none; }
+.habit:hover { border-color:var(--lime); }
+.habit.done { border-color:var(--lime); background:rgba(200,255,0,0.05); }
+.hcheck { width:20px; height:20px; border-radius:5px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; transition:all .15s; }
+.habit.done .hcheck { background:var(--lime); border-color:var(--lime); color:#07070F; }
+.hicon { font-size:16px; flex-shrink:0; }
+.htext { flex:1; }
+.hname { font-size:13px; font-weight:700; }
+.hdesc { font-family:var(--fm); font-size:10px; color:var(--muted); margin-top:1px; }
+.habit.done .hname { color:var(--lime); }
+.score-box { margin-top:12px; padding:11px; border-radius:10px; background:var(--s2); text-align:center; font-family:var(--fd); font-size:26px; }
+.score-lbl { font-family:var(--fm); font-size:10px; color:var(--muted); display:block; margin-top:2px; letter-spacing:2px; text-transform:uppercase; }
+.streak-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; text-align:center; }
+.streak-fire { font-size:24px; display:block; margin-bottom:4px; }
+.streak-num { font-family:var(--fd); font-size:58px; color:var(--lime); line-height:1; }
+.streak-lbl { font-family:var(--fm); font-size:10px; color:var(--muted); letter-spacing:3px; text-transform:uppercase; }
+.exam-list { display:flex; flex-direction:column; gap:6px; }
+.exam-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; background:var(--s2); border:1px solid var(--border); }
+.exam-input { background:transparent; border:none; color:var(--text); font-family:var(--fb); font-size:12px; font-weight:700; width:100%; outline:none; }
+.exam-btn { font-family:var(--fm); font-size:9px; letter-spacing:1px; text-transform:uppercase; padding:4px 8px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; white-space:nowrap; }
+.exam-btn:hover { border-color:var(--lime); color:var(--lime); }
+.exam-btn.passed { background:var(--lime); color:#07070F; border-color:var(--lime); font-weight:700; }
+.counters { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.cbox { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.cval { font-family:var(--fd); font-size:40px; color:var(--text); line-height:1; margin-top:4px; }
+.clbl { font-family:var(--fm); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.cbtns { display:flex; gap:6px; margin-top:8px; }
+.cbtn { flex:1; background:var(--s2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:16px; cursor:pointer; padding:4px; }
+.cbtn:hover { border-color:var(--lime); color:var(--lime); }
+.grid-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 20px; margin-bottom:14px; }
+.daygrid { display:grid; grid-template-columns:repeat(30,1fr); gap:3px; margin-top:10px; }
+.dcell { aspect-ratio:1; border-radius:2px; background:var(--s2); border:1px solid var(--border); cursor:pointer; transition:all .1s; position:relative; }
+.dcell:hover:not(.future) { border-color:var(--lime); transform:scale(1.4); z-index:10; }
+.dcell.today { border:2px solid var(--lime) !important; }
+.dcell.full { background:var(--lime); border-color:var(--lime); }
+.dcell.partial { background:var(--lime2); border-color:var(--lime2); opacity:.6; }
+.dcell.future { opacity:.2; cursor:default; }
+.legend { display:flex; gap:14px; margin-top:8px; font-family:var(--fm); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; flex-wrap:wrap; }
+.li { display:flex; align-items:center; gap:4px; }
+.ld { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+.footer { font-family:var(--fm); font-size:9px; color:var(--muted); text-align:center; letter-spacing:2px; text-transform:uppercase; padding-top:6px; }
+@media(max-width:720px){
+  .hero { grid-template-columns:1fr 1fr; }
+  .hero-main { grid-column:1/-1; }
+  .main { grid-template-columns:1fr; }
+  .daygrid { grid-template-columns:repeat(18,1fr); }
+  .dots { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div style="display:flex;align-items:baseline">
+      <span class="logo">180</span>
+      <span class="logo-sub">Day Challenge · Finance × Brand × Build</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-reset" id="resetBtn" style="display:none" onclick="resetAll()">Reset</button>
+      <div class="saved-pill">💾 Auto-saved locally</div>
+    </div>
+  </div>
+
+  <div class="setup" id="setupBar">
+    <label>Start Date:</label>
+    <input type="date" id="startInput" />
+    <button class="btn-start" onclick="beginChallenge()">BEGIN CHALLENGE</button>
+  </div>
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="day-num" id="dayNum">--</div>
+      <div class="day-of">OF 180 DAYS</div>
+      <div class="day-rem" id="dayRem">Set your start date above</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-lbl">Current Streak</div>
+      <div class="hstat-val" id="streakVal">0</div>
+      <div class="hstat-sub">days of 5/5 habits</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-lbl">Overall Progress</div>
+      <div class="hstat-val" id="progressVal">0%</div>
+      <div class="hstat-sub" id="progressSub">Not started</div>
+    </div>
+  </div>
+
+  <div class="phase-bar">
+    <span class="phase-tag" id="phaseTag">Phase 1 · Lock In</span>
+    <div class="track"><div class="fill" id="phaseFill" style="width:0%"></div></div>
+    <span class="phase-pct" id="phasePct">0%</span>
+    <div class="dots">
+      <div class="dot active" id="dot0"><div class="dot-c"></div>Lock In</div>
+      <div class="dot" id="dot1"><div class="dot-c"></div>Build</div>
+      <div class="dot" id="dot2"><div class="dot-c"></div>Monetize</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <div class="card-title">Today's Non-Negotiables <span id="habitScore">0/5 COMPLETE</span></div>
+      <div class="habits" id="habitList"></div>
+      <div class="score-box" id="scoreBox" style="color:#5A5A7A">
+        0/5 <span class="score-lbl">Today's Score</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="streak-box">
+        <span class="streak-fire" id="streakFire">⚡</span>
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-lbl">Day Streak</div>
+      </div>
+      <div class="card" style="padding:14px 16px">
+        <div class="card-title">Finance Exams <span id="examScore">0/5 PASSED</span></div>
+        <div class="exam-list" id="examList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="counters">
+    <div class="cbox">
+      <div class="clbl">🛠️ Tools Built</div>
+      <div class="cval" id="toolsVal">0</div>
+      <div class="cbtns">
+        <button class="cbtn" onclick="changeCounter('tools',-1)">−</button>
+        <button class="cbtn" onclick="changeCounter('tools',1)">+</button>
+      </div>
+    </div>
+    <div class="cbox">
+      <div class="clbl">📱 Content Posted</div>
+      <div class="cval" id="contentVal">0</div>
+      <div class="cbtns">
+        <button class="cbtn" onclick="changeCounter('content',-1)">−</button>
+        <button class="cbtn" onclick="changeCounter('content',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-card">
+    <div class="card-title">180 Day Map <span id="perfectCount">NOT STARTED</span></div>
+    <div class="daygrid" id="dayGrid"></div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:var(--lime)"></div>Perfect Day</div>
+      <div class="li"><div class="ld" style="background:var(--lime2);opacity:.6"></div>Partial</div>
+      <div class="li"><div class="ld" style="background:var(--s2);border:1px solid var(--border)"></div>Missed</div>
+      <div class="li"><div class="ld" style="background:transparent;border:2px solid var(--lime)"></div>Today</div>
+    </div>
+  </div>
+
+  <div class="footer">Discipline Is The Price Of Freedom · 180 Days · All data saved to your browser</div>
+</div>
+
+<script>
+const HABITS = [
+  { id:"study",   label:"Finance Study Block", icon:"📚", desc:"2–2.5 hrs minimum" },
+  { id:"content", label:"Content Posted",       icon:"📱", desc:"1 piece published" },
+  { id:"physical",label:"Physical Routine",     icon:"💪", desc:"Train · Eat · Supplements" },
+  { id:"build",   label:"Built Something",      icon:"🛠️", desc:"Tool · Store · Brand" },
+  { id:"journal", label:"Day Reviewed",         icon:"📓", desc:"Journal + plan tomorrow" },
+];
+
+const PHASES = [
+  { num:1, label:"Lock In"  },
+  { num:2, label:"Build"    },
+  { num:3, label:"Monetize" },
+];
+
+let state = {
+  startDate: null,
+  dayData: {},
+  tools: 0,
+  content: 0,
+  exams: ["Exam 1","Exam 2","Exam 3","Exam 4","Exam 5"].map(n=>({name:n,passed:false}))
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem("challenge_v1");
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+
+function saveState() {
+  try { localStorage.setItem("challenge_v1", JSON.stringify(state)); } catch(e) {}
+}
+
+function getDay() {
+  if (!state.startDate) return 0;
+  const diff = Math.floor((new Date() - new Date(state.startDate)) / 86400000) + 1;
+  return Math.max(1, Math.min(180, diff));
+}
+
+function getStreak(day) {
+  let s = 0;
+  for (let d = day; d >= 1; d--) {
+    const h = state.dayData[`d${d}`] || {};
+    if (HABITS.filter(x => h[x.id]).length === 5) s++; else break;
+  }
+  return s;
+}
+
+function getPerfectDays() {
+  return Object.values(state.dayData).filter(h => HABITS.filter(x=>h[x.id]).length === 5).length;
+}
+
+function render() {
+  const day = getDay();
+  const hasStart = !!state.startDate;
+
+  document.getElementById("setupBar").style.display = hasStart ? "none" : "flex";
+  document.getElementById("resetBtn").style.display = hasStart ? "block" : "none";
+
+  // Hero
+  document.getElementById("dayNum").textContent = hasStart ? day : "--";
+  const phaseIdx = day <= 60 ? 0 : day <= 120 ? 1 : 2;
+  const phase = PHASES[phaseIdx];
+  document.getElementById("dayRem").textContent = hasStart
+    ? `${180-day} days remaining · Phase ${phase.num}: ${phase.label}`
+    : "Set your start date above";
+
+  const streak = hasStart ? getStreak(day) : 0;
+  document.getElementById("streakVal").textContent = streak;
+  document.getElementById("streakNum").textContent = streak;
+  document.getElementById("streakFire").textContent = streak > 0 ? "🔥" : "⚡";
+
+  const pct = hasStart ? Math.round((day/180)*100) : 0;
+  document.getElementById("progressVal").textContent = pct + "%";
+  const pd = getPerfectDays();
+  document.getElementById("progressSub").textContent = hasStart ? `${pd} perfect days` : "Not started";
+
+  // Phase bar
+  const phasePct = phaseIdx===0?(day/60)*100:phaseIdx===1?((day-60)/60)*100:((day-120)/60)*100;
+  document.getElementById("phaseTag").textContent = `Phase ${phase.num} · ${phase.label}`;
+  document.getElementById("phaseFill").style.width = Math.round(phasePct) + "%";
+  document.getElementById("phasePct").textContent = Math.round(phasePct) + "%";
+  [0,1,2].forEach(i => {
+    const el = document.getElementById(`dot${i}`);
+    el.className = "dot" + (i < phaseIdx ? " done" : i === phaseIdx ? " active" : "");
+  });
+
+  // Habits
+  const todayKey = `d${day}`;
+  const todayHabits = state.dayData[todayKey] || {};
+  const todayCount = HABITS.filter(h => todayHabits[h.id]).length;
+  document.getElementById("habitScore").textContent = `${todayCount}/5 COMPLETE`;
+  const scoreColor = todayCount===5?"#C8FF00":todayCount>=3?"#8AB500":todayCount>=1?"#FACC15":"#5A5A7A";
+  const scoreBox = document.getElementById("scoreBox");
+  scoreBox.style.color = scoreColor;
+  scoreBox.innerHTML = `${todayCount}/5 <span class="score-lbl">Today's Score</span>`;
+
+  const habitList = document.getElementById("habitList");
+  habitList.innerHTML = "";
+  HABITS.forEach(h => {
+    const done = !!todayHabits[h.id];
+    const el = document.createElement("div");
+    el.className = "habit" + (done ? " done" : "");
+    el.innerHTML = `<div class="hcheck">${done?"✓":""}</div><div class="hicon">${h.icon}</div><div class="htext"><div class="hname">${h.label}</div><div class="hdesc">${h.desc}</div></div>`;
+    el.onclick = () => {
+      if (!state.startDate) return;
+      state.dayData[todayKey] = { ...(state.dayData[todayKey]||{}), [h.id]: !todayHabits[h.id] };
+      saveState(); render();
+    };
+    habitList.appendChild(el);
+  });
+
+  // Exams
+  const examList = document.getElementById("examList");
+  examList.innerHTML = "";
+  state.exams.forEach((ex, i) => {
+    const el = document.createElement("div");
+    el.className = "exam-item";
+    el.innerHTML = `<input class="exam-input" value="${ex.name}" /><button class="exam-btn${ex.passed?" passed":""}">${ex.passed?"✓ PASSED":"Mark Pass"}</button>`;
+    el.querySelector("input").onchange = e => { state.exams[i].name = e.target.value; saveState(); };
+    el.querySelector("button").onclick = () => { state.exams[i].passed = !state.exams[i].passed; saveState(); render(); };
+    examList.appendChild(el);
+  });
+  document.getElementById("examScore").textContent = `${state.exams.filter(e=>e.passed).length}/${state.exams.length} PASSED`;
+
+  // Counters
+  document.getElementById("toolsVal").textContent = state.tools;
+  document.getElementById("contentVal").textContent = state.content;
+
+  // 180 grid
+  const grid = document.getElementById("dayGrid");
+  grid.innerHTML = "";
+  for (let d = 1; d <= 180; d++) {
+    const el = document.createElement("div");
+    let cls = "dcell";
+    if (!hasStart || d > day) cls += " future";
+    else if (d === day) cls += " today";
+    else {
+      const h = state.dayData[`d${d}`] || {};
+      const c = HABITS.filter(x=>h[x.id]).length;
+      if (c===5) cls += " full";
+      else if (c>0) cls += " partial";
+    }
+    el.className = cls;
+    el.title = `Day ${d}${d===day?" · Today":""}`;
+    grid.appendChild(el);
+  }
+  document.getElementById("perfectCount").textContent = hasStart ? `${pd} PERFECT DAYS` : "NOT STARTED";
+}
+
+function beginChallenge() {
+  const val = document.getElementById("startInput").value;
+  state.startDate = val || new Date().toISOString().split("T")[0];
+  saveState(); render();
+}
+
+function changeCounter(key, delta) {
+  state[key] = Math.max(0, (state[key]||0) + delta);
+  saveState(); render();
+}
+
+function resetAll() {
+  if (!confirm("Reset the entire 180-day challenge? This cannot be undone.")) return;
+  state = { startDate:null, dayData:{}, tools:0, content:0, exams:["Exam 1","Exam 2","Exam 3","Exam 4","Exam 5"].map(n=>({name:n,passed:false})) };
+  saveState(); render();
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>
